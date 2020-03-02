@@ -1,12 +1,13 @@
 ///
 //  Generated code. Do not modify.
 //  source: route_guide.proto
-///
-// ignore_for_file: camel_case_types,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name
+//
+// @dart = 2.3
+// ignore_for_file: camel_case_types,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type
 
 import 'dart:async' as $async;
 
-import 'dart:core' as $core show int, String, List;
+import 'dart:core' as $core;
 
 import 'package:grpc/service_api.dart' as $grpc;
 import 'route_guide.pb.dart' as $0;
@@ -25,6 +26,11 @@ class RouteGuideClient extends $grpc.Client {
       '/routeguide.RouteGuide/RecordRoute',
       ($0.Point value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.RouteSummary.fromBuffer(value));
+  static final _$recordRouteWeb =
+      $grpc.ClientMethod<$0.PointList, $0.RouteSummary>(
+          '/routeguide.RouteGuide/RecordRouteWeb',
+          ($0.PointList value) => value.writeToBuffer(),
+          ($core.List<$core.int> value) => $0.RouteSummary.fromBuffer(value));
   static final _$routeChat = $grpc.ClientMethod<$0.RouteNote, $0.RouteNote>(
       '/routeguide.RouteGuide/RouteChat',
       ($0.RouteNote value) => value.writeToBuffer(),
@@ -53,6 +59,14 @@ class RouteGuideClient extends $grpc.Client {
       $async.Stream<$0.Point> request,
       {$grpc.CallOptions options}) {
     final call = $createCall(_$recordRoute, request, options: options);
+    return $grpc.ResponseFuture(call);
+  }
+
+  $grpc.ResponseFuture<$0.RouteSummary> recordRouteWeb($0.PointList request,
+      {$grpc.CallOptions options}) {
+    final call = $createCall(
+        _$recordRouteWeb, $async.Stream.fromIterable([request]),
+        options: options);
     return $grpc.ResponseFuture(call);
   }
 
@@ -89,6 +103,13 @@ abstract class RouteGuideServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.Point.fromBuffer(value),
         ($0.RouteSummary value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.PointList, $0.RouteSummary>(
+        'RecordRouteWeb',
+        recordRouteWeb_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.PointList.fromBuffer(value),
+        ($0.RouteSummary value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.RouteNote, $0.RouteNote>(
         'RouteChat',
         routeChat,
@@ -99,13 +120,18 @@ abstract class RouteGuideServiceBase extends $grpc.Service {
   }
 
   $async.Future<$0.Feature> getFeature_Pre(
-      $grpc.ServiceCall call, $async.Future request) async {
+      $grpc.ServiceCall call, $async.Future<$0.Point> request) async {
     return getFeature(call, await request);
   }
 
   $async.Stream<$0.Feature> listFeatures_Pre(
-      $grpc.ServiceCall call, $async.Future request) async* {
-    yield* listFeatures(call, (await request) as $0.Rectangle);
+      $grpc.ServiceCall call, $async.Future<$0.Rectangle> request) async* {
+    yield* listFeatures(call, await request);
+  }
+
+  $async.Future<$0.RouteSummary> recordRouteWeb_Pre(
+      $grpc.ServiceCall call, $async.Future<$0.PointList> request) async {
+    return recordRouteWeb(call, await request);
   }
 
   $async.Future<$0.Feature> getFeature(
@@ -114,6 +140,8 @@ abstract class RouteGuideServiceBase extends $grpc.Service {
       $grpc.ServiceCall call, $0.Rectangle request);
   $async.Future<$0.RouteSummary> recordRoute(
       $grpc.ServiceCall call, $async.Stream<$0.Point> request);
+  $async.Future<$0.RouteSummary> recordRouteWeb(
+      $grpc.ServiceCall call, $0.PointList request);
   $async.Stream<$0.RouteNote> routeChat(
       $grpc.ServiceCall call, $async.Stream<$0.RouteNote> request);
 }

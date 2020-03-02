@@ -16,21 +16,19 @@
 import 'dart:async';
 import 'dart:math' show Random;
 
-import 'package:grpc/grpc.dart';
+import 'package:grpc/grpc_web.dart';
 
 import 'common.dart';
 import 'generated/route_guide.pb.dart';
 import 'generated/route_guide.pbgrpc.dart';
 
-class Client {
-  ClientChannel channel;
+class WebClient {
+  GrpcWebClientChannel channel;
   RouteGuideClient stub;
 
   Future<void> main(List<String> args) async {
-    channel = ClientChannel('127.0.0.1',
-        port: 8081,
-        options:
-            const ChannelOptions(credentials: ChannelCredentials.insecure()));
+    final endpoint = Uri.parse('http://127.0.0.1:8080');
+    channel = GrpcWebClientChannel.xhr(endpoint);
     stub = RouteGuideClient(channel,
         options: CallOptions(timeout: Duration(seconds: 30)));
     // Run all of the demos in order.
@@ -38,7 +36,7 @@ class Client {
       await runGetFeature();
       await runListFeatures();
       await runRecordRoute();
-      await runRouteChat();
+      // await runRouteChat();
     } catch (e) {
       print('Caught error: $e');
     }
@@ -93,19 +91,17 @@ class Client {
   /// pre-generated feature database with a variable delay in between. Prints
   /// the statistics when they are sent from the server.
   Future<void> runRecordRoute() async {
-    Stream<Point> generateRoute(int count) async* {
-      final random = Random();
-
-      for (int i = 0; i < count; i++) {
-        final point = featuresDb[random.nextInt(featuresDb.length)].location;
-        print(
-            'Visiting point ${point.latitude / coordFactor}, ${point.longitude / coordFactor}');
-        yield point;
-        await Future.delayed(Duration(milliseconds: 200 + random.nextInt(100)));
-      }
+    final pointList = PointList();
+    final random = Random();
+    final count = 10;
+    for (int i = 0; i < count; i++) {
+      final point = featuresDb[random.nextInt(featuresDb.length)].location;
+      print(
+          'Visiting point ${point.latitude / coordFactor}, ${point.longitude / coordFactor}');
+      pointList.points.add(point);
     }
 
-    final summary = await stub.recordRoute(generateRoute(10));
+    final summary = await stub.recordRouteWeb(pointList);
     print('Finished trip with ${summary.pointCount} points');
     print('Passed ${summary.featureCount} features');
     print('Travelled ${summary.distance} meters');

@@ -1,0 +1,16 @@
+version: '3'
+services:
+  server:
+    build:
+      context: ./
+      dockerfile: ./example/route_guide/docker/server.Dockerfile
+    ports:
+      - "8081:8081"
+  envoy:
+    build:
+      context: ./
+      dockerfile: ./example/route_guide/docker/envoy.Dockerfile
+    ports:
+      - "8080:8080"
+    links:
+      - server

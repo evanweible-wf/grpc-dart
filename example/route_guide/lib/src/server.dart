@@ -103,6 +103,12 @@ class RouteGuideService extends RouteGuideServiceBase {
       ..elapsedTime = timer.elapsed.inSeconds;
   }
 
+  @override
+  Future<RouteSummary> recordRouteWeb(
+      grpc.ServiceCall call, PointList request) {
+    return recordRoute(call, Stream.fromIterable(request.points));
+  }
+
   /// RouteChat handler. Receives a stream of message/location pairs, and
   /// responds with a stream of all previous messages at each of those
   /// locations.
@@ -144,7 +150,7 @@ class RouteGuideService extends RouteGuideServiceBase {
 class Server {
   Future<void> main(List<String> args) async {
     final server = grpc.Server([RouteGuideService()]);
-    await server.serve(port: 8080);
+    await server.serve(port: 8081);
     print('Server listening on port ${server.port}...');
   }
 }

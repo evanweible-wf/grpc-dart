@@ -105,7 +105,8 @@ class Server {
       server = _secureServer;
     } else {
       _insecureServer = await ServerSocket.bind(
-          address ?? InternetAddress.anyIPv4, port ?? 80, backlog: backlog, shared: shared , v6Only: v6Only);
+          address ?? InternetAddress.anyIPv4, port ?? 80,
+          backlog: backlog, shared: shared, v6Only: v6Only);
       server = _insecureServer;
     }
     server.listen((socket) {

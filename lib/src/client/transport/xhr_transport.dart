@@ -30,6 +30,7 @@ class XhrTransportStream implements GrpcTransportStream {
   final HttpRequest _request;
   final ErrorHandler _onError;
   final Function(XhrTransportStream stream) _onDone;
+  final _requestOpening = Completer<void>();
   int _requestBytesRead = 0;
   final StreamController<ByteBuffer> _incomingProcessor = StreamController();
   final StreamController<GrpcMessage> _incomingMessages = StreamController();
@@ -44,11 +45,16 @@ class XhrTransportStream implements GrpcTransportStream {
   XhrTransportStream(this._request, {onError, onDone})
       : _onError = onError,
         _onDone = onDone {
-    _outgoingMessages.stream
-        .map(frame)
-        .listen((data) => _request.send(data), cancelOnError: true);
+    _outgoingMessages.stream.map(frame).listen(_send, cancelOnError: true);
+
+    if (_request.readyState != HttpRequest.UNSENT) {
+      _requestOpening.complete();
+    }
 
     _request.onReadyStateChange.listen((data) {
+      if (!_requestOpening.isCompleted) {
+        _requestOpening.complete();
+      }
       if (_incomingMessages.isClosed) {
         return;
       }
@@ -94,6 +100,13 @@ class XhrTransportStream implements GrpcTransportStream {
         .transform(grpcDecompressor())
         .listen(_incomingMessages.add,
             onError: _onError, onDone: _incomingMessages.close);
+  }
+
+  void _send(List<int> data) async {
+    if (!_requestOpening.isCompleted) {
+      await _requestOpening.future;
+    }
+    _request.send(data);
   }
 
   _onHeadersReceived() {
